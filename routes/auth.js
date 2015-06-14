@@ -1,4 +1,5 @@
 var jwt = require('jwt-simple');
+var db = require('mongoskin').db('mongodb://localhost:27017/dbName', {safe:true});
 
 var auth = {
 	login: function(req, res) {

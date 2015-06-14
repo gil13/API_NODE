@@ -8,5 +8,6 @@ var routes = require('./routes.js');
 router.post('/login', auth.login);
  
 router.get('/api/v1/doc', routes.getAll);
+// router.get('/api/v1/admin/doc', routes.getAll); --> auth and validation
  
 module.exports = router;

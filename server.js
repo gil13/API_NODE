@@ -23,8 +23,9 @@ app.all('/*', function(req, res, next) {
   }
 });
 
-app.use('/', require('./routes'));			//Routes files
+
 app.all('/api/v1/*', [require('./middlewares/validateRequest')]);
+app.use('/', require('./routes'));			//Routes files
 
 app.use(function(req, res, next) {			//If route does not exists set status and msg
   var err = new Error('Not Found');
