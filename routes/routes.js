@@ -1,32 +1,14 @@
+var bodyParser = require("body-parser");
+var db = require('mongoskin').db('mongodb://localhost:27017/Renov8', {safe:true});
+
 var routes = {
 	getAll: function(req, res) {
-		var allDocs = data; // Spoof a DB call
-		res.json(allDocs);
-	},
-
-	getOne: function(req, res) {
-		var id = req.params.id;
-		var doc = data[0]; // Spoof a DB call
-		res.json(doc);
-	},
+		var dataDb;
+		db.collection('doc').find().toArray(function(err, result) {
+    		if (err) throw err;
+			res.json(result);
+		});
+	}
 };
-
-
-//  RESPONSE FROM DB //
-
-var data = [{
-		name: 'user 1',
-		id: '1'
-	}, 
-	{
-		name: 'user 2',
-		id: '2'
-	}, 
-		{
-		name: 'user 3',
-		id: '3'
-}];
-
-// ----------------//
 
 module.exports = routes;
