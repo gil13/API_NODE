@@ -1,5 +1,5 @@
 var jwt = require('jwt-simple');
-var db = require('mongoskin').db('mongodb://localhost:27017/dbName', {safe:true});
+var db = require('mongoskin').db('mongodb://localhost:27017/Renov8', {safe:true});
 
 var auth = {
 	login: function(req, res) {
@@ -11,49 +11,42 @@ var auth = {
 			res.status(401);
 			res.json({
 				"status": 401,
-				"message": "Invalid credentials"
-			});
-
-		return;
-		}
-
-		// Fire a query to your DB and check if the credentials are valid
-		var dbUserObj = auth.validate(username, password);
-
-		if (!dbUserObj) { // If authentication fails, we send a 401 back
-			res.status(401);
-			res.json({
-				"status": 401,
-				"message": "Invalid credentials"
+				"message": "Invalid credentials - Fields empty"
 			});
 
 			return;
 		}
-		if (dbUserObj) {
-		// If authentication is success, we will generate a token
-		// and dispatch it to the client
-			res.json(genToken(dbUserObj));
-		}
+
+		auth.validate(req, res, username, password);
 	},
 
-	validate: function(username, password) {
-	// spoofing the DB response for simplicity
-		var dbUserObj = { // spoofing a userobject from the DB. 
-			name: 'arvind',
-			role: 'admin',
-			username: 'arvind@myapp.com'
-		};
+	validate: function(req, res, username, password) {
 
-		return dbUserObj;
+		db.collection('users').findOne({username:username}, function(err, result) {
+
+		    if(result.password === password){
+		    	console.log('password ok');
+				res.json(genToken(result));
+
+		    }
+		    else{
+		    	console.log('password fail');
+		    	res.status(401);
+				res.json({
+					"status": 401,
+					"message": "Invalid credentials - Auth fail"
+				});
+
+				return;
+		    } 
+		});
 	},
 
 	validateUser: function(username) {
-	// spoofing the DB response for simplicity
-		var dbUserObj = { // spoofing a userobject from the DB. 
-			name: 'arvind',
-			role: 'admin',
-			username: 'arvind@myapp.com'
-		};
+		db.collection('users').find().toArray(function(err, result) {
+    		if (err) throw err;
+			console.log(result);
+		});
 
 		return dbUserObj;
 	},
@@ -65,6 +58,7 @@ function genToken(user) {
 	var token = jwt.encode({
 		exp: expires
 	}, require('../config/secret')());
+
 	return {
 		token: token,
 		expires: expires,
