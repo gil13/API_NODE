@@ -1,6 +1,9 @@
 var jwt = require('jwt-simple');
 var db = require('mongoskin').db('mongodb://localhost:27017/Renov8', {safe:true});
 
+var tokenId = null;
+var userData = null;
+
 var auth = {
 	login: function(req, res) {
 
@@ -36,7 +39,6 @@ var auth = {
 			else{
 			    if(result.password === password && result){
 					res.json(genToken(result));
-
 			    }
 			    else{
 			    	res.status(401);
@@ -51,16 +53,10 @@ var auth = {
 		});
 	},
 
-	validateUser: function(req, res, username) {
-		db.collection('users').findOne({username:username}, function(err, result) {
-
-			console.log('User exist');
-			console.log(result);
-
-    		if (err) throw err;
-		});
-
-		return dbUserObj;
+	validateUser: function(token) {
+		if(tokenId === token){
+			return userData;
+		}
 	},
 }
 		
@@ -70,6 +66,10 @@ function genToken(user) {
 	var token = jwt.encode({
 		exp: expires
 	}, require('../config/secret')());
+
+	delete user.password;
+	tokenId = token;
+	userData = user;
 
 	return {
 		token: token,
