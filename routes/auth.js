@@ -24,28 +24,40 @@ var auth = {
 
 		db.collection('users').findOne({username:username}, function(err, result) {
 
-		    if(result.password === password){
-		    	console.log('password ok');
-				res.json(genToken(result));
-
-		    }
-		    else{
-		    	console.log('password fail');
+			if(result === null){
 		    	res.status(401);
 				res.json({
 					"status": 401,
-					"message": "Invalid credentials - Auth fail"
+					"message": "Invalid credentials - User does not exist in db"
 				});
 
 				return;
+			}
+			else{
+			    if(result.password === password && result){
+					res.json(genToken(result));
+
+			    }
+			    else{
+			    	res.status(401);
+					res.json({
+						"status": 401,
+						"message": "Invalid credentials - Auth fail, wrong password"
+					});
+
+					return;
+			    }
 		    } 
 		});
 	},
 
-	validateUser: function(username) {
-		db.collection('users').find().toArray(function(err, result) {
-    		if (err) throw err;
+	validateUser: function(req, res, username) {
+		db.collection('users').findOne({username:username}, function(err, result) {
+
+			console.log('User exist');
 			console.log(result);
+
+    		if (err) throw err;
 		});
 
 		return dbUserObj;
